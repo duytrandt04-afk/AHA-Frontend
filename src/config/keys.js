@@ -1,5 +1,5 @@
 export const app = {
     name: "AHA-Capstone",
-    dataURL: import.meta.env.VITE_DATA_URL,
+    dataURL: http://35.225.246.253:8000/,
     googleClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
 };
