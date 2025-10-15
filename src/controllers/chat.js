@@ -6,7 +6,10 @@ import { app } from "../config/keys.js";
 // Create axios instance with base URL from your existing config
 const apiClient = axios.create({
     baseURL: app.dataURL,
-    timeout: 300000, // 5 minutes timeout
+    timeout: 30000, // 5 minutes timeout,
+    headers: {
+        'ngrok-skip-browser-warning': 'true', // Skip ngrok browser warning
+    }
 });
 
 // Helper function to convert base64 to File
