@@ -83,35 +83,26 @@ const processFilesForBackend = async (files) => {
 // Poller for async jobs
 export async function pollJobResult(jobId, isAudio = false, maxRetries = 300, delay = 200) {
     for (let i = 0; i < maxRetries; i++) {
-        const res = await axios.get(`${app.dataURL}/api/jobs/${jobId}`, {
+        const res = await apiClient.get(`/api/jobs/${jobId}`, {
             responseType: isAudio ? "blob" : "json",
         });
 
         if (!isAudio) {
-            // Normal JSON job
             const { status, result } = res.data;
-
             if (status === "done") {
                 console.log(`Job ${jobId} completed successfully:`, result);
-                return { success: true, data: result };
+                return { success: true, data: result ?? "✅ Job completed (no data returned)" };
             }
             if (status === "error") {
                 console.error(`Job ${jobId} failed:`, result);
                 return { success: false, message: result || "Job failed" };
             }
-        } else {
-            // Audio job
-            if (res.status === 200) {
-                const contentType = res.headers["content-type"];
-                if (contentType === "audio/mpeg") {
-                    console.log(`Audio job ${jobId} completed successfully`);
-                    return { success: true, data: res.data };
-                }
-            }
-
+        } else if (res.status === 200 && res.headers["content-type"] === "audio/mpeg") {
+            console.log(`Audio job ${jobId} completed successfully`);
+            return { success: true, data: res.data };
         }
 
-        await new Promise(r => setTimeout(r, delay));
+        await new Promise((r) => setTimeout(r, delay));
     }
 
     return { success: false, message: "Job polling timed out" };
@@ -224,7 +215,7 @@ export async function sendMessageToBackend(
             },
             timeout: isJob ? 60000 : 15000,
         });
-
+        console.log("Initial response:", response.data); // Log the initial response
         if (!isJob) {
             // standard API
             return { success: true, response: response.data };
@@ -237,6 +228,7 @@ export async function sendMessageToBackend(
         }
 
         const result = await pollJobResult(jobId);
+        console.log("Polled job result:", result); // Log the polled job result
         if (result && result.data) {
             return {
                 success: true,

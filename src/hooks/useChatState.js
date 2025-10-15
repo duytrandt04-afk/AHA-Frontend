@@ -80,7 +80,7 @@ export default function useChatState() {
     const refreshConversationList = async (uid = userId) => {
         if (!uid) return;
         try {
-            const allConversations = await getAllConversations(uid);
+            const allConversations = await getAllConversations(uid);    
             const list = allConversations.map((chat) => ({
                 id: chat.id,
                 name: chat.title || "New Chat",
